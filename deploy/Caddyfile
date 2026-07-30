@@ -1,0 +1,26 @@
+# Configuració de producció (VM d'Oracle Cloud).
+#
+# Caddy és l'únic servei exposat a Internet (:80 i :443) i obté i renova el
+# certificat de Let's Encrypt automàticament. Tot el trànsit va a parar al
+# contenidor "web", que ja serveix l'aplicació, fa de proxy cap a l'API a
+# /api/ i serveix els GIFs del catàleg a /dataset/ — per tant només cal un
+# reverse_proxy, no cal encaminar /api per separat.
+#
+# Instal·lació a la VM:
+#   sudo cp deploy/Caddyfile /etc/caddy/Caddyfile
+#   sudo systemctl reload caddy
+
+datavol.online {
+	reverse_proxy 127.0.0.1:8080
+
+	# Els PDFs que es pugen poden pesar uns quants MB.
+	request_body {
+		max_size 25MB
+	}
+
+	encode gzip
+}
+
+www.datavol.online {
+	redir https://datavol.online{uri} permanent
+}

@@ -5,7 +5,13 @@ import { loadDataset } from './dataset/loader.js';
 import { registerRoutes } from './routes.js';
 import { seed } from './seed.js';
 
-const app = Fastify({ logger: { level: process.env.LOG_LEVEL ?? 'info' } });
+// trustProxy: l'API mai és accessible directament (només escolta a la xarxa
+// interna de Docker), sempre hi arribem via Caddy → nginx. Sense això
+// req.ip seria la IP del contenidor web i req.protocol sempre "http".
+const app = Fastify({
+  logger: { level: process.env.LOG_LEVEL ?? 'info' },
+  trustProxy: true,
+});
 
 await app.register(multipart, { limits: { fileSize: 25 * 1024 * 1024 } });
 await registerRoutes(app);

@@ -10,7 +10,8 @@ services:
       - db-data:/var/lib/postgresql/data
     ports:
       # Exposat només per poder inspeccionar la base de dades des de l'amfitrió.
-      - "${DB_PORT:-5433}:5432"
+      # Lligat a 127.0.0.1: mai accessible des de fora de la màquina.
+      - "127.0.0.1:${DB_PORT:-5433}:5432"
     healthcheck:
       test: ["CMD-SHELL", "pg_isready -U ${POSTGRES_USER:-gym} -d ${POSTGRES_DB:-gym}"]
       interval: 5s
@@ -29,7 +30,9 @@ services:
       DATASET_DIR: /dataset
       SEED_DIR: /seed
     ports:
-      - "${API_PORT:-3001}:3001"
+      # Només per depurar des de l'amfitrió. El web hi arriba per la xarxa
+      # interna de Docker (http://api:3001), no per aquest port.
+      - "127.0.0.1:${API_PORT:-3001}:3001"
     volumes:
       # Dataset d'exercicis i PDFs originals, només lectura
       - ./data/exercises-dataset:/dataset:ro
@@ -42,7 +45,9 @@ services:
     depends_on:
       - api
     ports:
-      - "${WEB_PORT:-8080}:80"
+      # En producció qui escolta cap enfora és Caddy (:80/:443), que fa de
+      # reverse proxy cap aquí. Vegeu deploy/Caddyfile.
+      - "127.0.0.1:${WEB_PORT:-8080}:80"
     volumes:
       # nginx serveix els GIFs i miniatures directament des d'aquí
       - ./data/exercises-dataset:/usr/share/nginx/html/dataset:ro
