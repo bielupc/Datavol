@@ -33,11 +33,11 @@ export function BarRankChart({
             key={item.slug}
             type="button"
             onClick={() => onSelect?.(item.slug)}
-            className="pressable group flex w-full items-center gap-3 rounded-lg px-2 py-2
-                       text-left hover:bg-paper"
+            className="pressable group flex w-full items-center gap-2 rounded-lg px-2 py-2
+                       text-left hover:bg-paper sm:gap-3"
           >
             {/* En mòbil el nom es queda estret perquè la barra continuï llegint-se. */}
-            <span className="w-24 shrink-0 truncate text-sm text-ink-700 sm:w-48">{item.name}</span>
+            <span className="w-20 shrink-0 truncate text-sm text-ink-700 sm:w-48">{item.name}</span>
             <span className="relative h-2.5 flex-1 overflow-hidden rounded-full bg-lineSoft">
               <motion.span
                 className="absolute inset-y-0 left-0 w-full origin-left rounded-full"
@@ -52,7 +52,7 @@ export function BarRankChart({
               />
             </span>
             <span
-              className={`w-16 shrink-0 text-right text-sm font-semibold tabular-nums sm:w-20 ${
+              className={`w-14 shrink-0 text-right text-sm font-semibold tabular-nums sm:w-20 ${
                 positive ? 'text-up' : 'text-down'
               }`}
             >

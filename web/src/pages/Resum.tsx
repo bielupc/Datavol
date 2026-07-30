@@ -51,8 +51,9 @@ export function Resum() {
 
   return (
     <motion.div variants={stagger} initial="hidden" animate="show" className="space-y-6">
-      {/* Indicadors principals */}
-      <div className="grid grid-cols-1 gap-4 sm:grid-cols-2 lg:grid-cols-4">
+      {/* Indicadors principals. A mòbil van de dos en dos: quatre targetes
+          apilades empenyien el primer gràfic fora de la primera pantalla. */}
+      <div className="grid grid-cols-2 gap-3 sm:gap-4 lg:grid-cols-4">
         <StatCard
           label={ca.overview.sessions}
           value={data.totals.sessions}
@@ -131,11 +132,18 @@ export function Resum() {
                   className="pressable flex w-full items-baseline gap-3 rounded-lg px-2 py-2
                              text-left transition-colors duration-150 hover:bg-paper"
                 >
-                  <span className="min-w-0 flex-1 truncate text-ink-700">{r.name}</span>
+                  {/* A mòbil la data baixa sota el nom: en tres columnes, el
+                      nom de l'exercici es quedava amb quatre lletres. */}
+                  <span className="min-w-0 flex-1">
+                    <span className="block truncate text-ink-700">{r.name}</span>
+                    <span className="block text-sm tabular-nums text-ink-500 sm:hidden">
+                      {fmt.dateShort(r.date)}
+                    </span>
+                  </span>
                   <span className="shrink-0 font-semibold tabular-nums text-ink-900">
                     {fmt.weight(r.weight, r.unit)}
                   </span>
-                  <span className="w-16 shrink-0 text-right text-sm tabular-nums text-ink-500">
+                  <span className="hidden w-16 shrink-0 text-right text-sm tabular-nums text-ink-500 sm:block">
                     {fmt.dateShort(r.date)}
                   </span>
                 </button>

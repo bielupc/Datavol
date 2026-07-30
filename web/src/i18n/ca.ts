@@ -17,6 +17,14 @@ export const ca = {
     exercicis: 'Exercicis',
     sessions: 'Sessions',
     importar: 'Importar',
+    perfil: 'Perfil',
+  },
+
+  /** Full de selecció de perfil (només a mòbil: a l'escriptori hi ha el selector de la capçalera). */
+  profileSheet: {
+    title: 'Qui entrena?',
+    hint: 'Tria de qui vols veure les dades.',
+    close: 'Tanca',
   },
 
   units: {

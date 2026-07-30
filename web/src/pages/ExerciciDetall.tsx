@@ -54,7 +54,7 @@ export function ExerciciDetall() {
       {/* El GIF és el protagonista: explica l'exercici millor que cap text. */}
       <motion.div variants={riseIn} className="card overflow-hidden p-0">
         <div className="grid md:grid-cols-[minmax(0,26rem)_1fr]">
-          <div className="flex flex-col items-center justify-center gap-3 border-b border-line bg-paper p-6 md:border-b-0 md:border-r">
+          <div className="flex flex-col items-center justify-center gap-3 border-b border-line bg-paper p-4 sm:p-6 md:border-b-0 md:border-r">
             {ds ? (
               <>
                 <ExerciseMedia
@@ -62,12 +62,12 @@ export function ExerciciDetall() {
                   gif={ds.gif}
                   alt={data.name}
                   fallback={ca.exercises.noMedia}
-                  className="h-72 w-full rounded-xl bg-surface"
+                  className="h-56 w-full rounded-xl bg-surface sm:h-72"
                 />
                 <p className="text-xs text-ink-400">{ds.attribution}</p>
               </>
             ) : (
-              <div className="flex h-72 w-full flex-col items-center justify-center gap-3 rounded-xl border border-dashed border-line px-4 text-center">
+              <div className="flex h-56 w-full flex-col items-center justify-center gap-3 rounded-xl border border-dashed border-line px-4 text-center sm:h-72">
                 <p className="text-ink-600">{ca.detail.noMedia}</p>
                 <p className="text-sm text-ink-500">{ca.detail.noMediaHint}</p>
                 <button
@@ -82,10 +82,12 @@ export function ExerciciDetall() {
             )}
           </div>
 
-          <div className="p-7">
-            <div className="flex flex-wrap items-start justify-between gap-3">
-              <div>
-                <h1 className="text-2xl font-semibold tracking-display text-ink-900">
+          <div className="p-5 sm:p-7">
+            {/* A mòbil el botó baixa sota el títol (`flex-col`): al costat li
+                robava l'amplada al nom de l'exercici, que és llarg sovint. */}
+            <div className="flex flex-col items-start gap-3 sm:flex-row sm:justify-between">
+              <div className="min-w-0">
+                <h1 className="text-xl font-semibold tracking-display text-ink-900 sm:text-2xl">
                   {data.name}
                 </h1>
                 <p className="mt-1.5 text-ink-500">
@@ -97,8 +99,8 @@ export function ExerciciDetall() {
                 <button
                   type="button"
                   onClick={() => setPickerOpen(true)}
-                  className="pressable rounded-xl border border-line bg-surface px-4 py-2 text-sm
-                             text-ink-700 transition-colors duration-150 hover:bg-paper"
+                  className="pressable shrink-0 rounded-xl border border-line bg-surface px-4 py-2.5
+                             text-sm text-ink-700 transition-colors duration-150 hover:bg-paper"
                 >
                   {ca.detail.changeMedia}
                 </button>
@@ -106,7 +108,7 @@ export function ExerciciDetall() {
             </div>
 
             {/* Fila de dades tranquil·la: sense caixes que competeixin. */}
-            <dl className="mt-7 grid grid-cols-2 gap-x-6 gap-y-5 sm:grid-cols-3">
+            <dl className="mt-6 grid grid-cols-2 gap-x-4 gap-y-4 sm:mt-7 sm:gap-x-6 sm:gap-y-5 sm:grid-cols-3">
               <Stat label={ca.detail.stats.sessions} value={String(data.stats.sessions)} />
               <Stat
                 label={ca.detail.stats.record}
@@ -207,7 +209,41 @@ export function ExerciciDetall() {
       {/* Historial */}
       <Card>
         <SectionTitle title={ca.detail.history} />
-        <div className="-mx-2 overflow-x-auto">
+
+        {/* A mòbil, una llista de fitxes. La taula fa sis columnes: per
+            estretes que es facin no baixa dels ~576 px, i el que quedava era
+            una taula que s'havia d'arrossegar de costat per veure el volum.
+            Aquí cada sessió és un bloc, amb la data com a encapçalament. */}
+        <ul className="space-y-2.5 sm:hidden">
+          {[...data.series].reverse().map((p) => (
+            <li key={p.date} className="rounded-xl border border-lineSoft p-3.5">
+              <div className="flex items-baseline justify-between gap-3">
+                <p className="min-w-0 text-sm text-ink-600">
+                  {fmt.dateLong(p.date)}
+                  <span className="ml-1.5 text-ink-400">{fmt.weekday(p.date)}</span>
+                </p>
+                <p className="shrink-0 text-lg font-semibold tabular-nums text-ink-900">
+                  {fmt.weight(p.weight, unit)}
+                </p>
+              </div>
+              <dl className="mt-2.5 grid grid-cols-3 gap-2 text-sm">
+                <HistoryCell label={ca.detail.change}>
+                  <WeightDelta delta={p.weightDelta} />
+                </HistoryCell>
+                <HistoryCell label={ca.detail.reps}>
+                  {fmt.reps(p.reps, p.partialReps)}
+                </HistoryCell>
+                <HistoryCell label={ca.metrics.tut}>{fmt.duration(p.tutSeconds)}</HistoryCell>
+              </dl>
+              <p className="mt-2 text-sm text-ink-500">
+                {ca.detail.volume}:{' '}
+                <span className="tabular-nums text-ink-700">{fmt.number(p.volume)}</span>
+              </p>
+            </li>
+          ))}
+        </ul>
+
+        <div className="-mx-2 hidden overflow-x-auto sm:block">
           <table className="w-full min-w-[36rem]">
             <thead>
               <tr className="text-left text-sm text-ink-500">
@@ -256,6 +292,16 @@ export function ExerciciDetall() {
         onPick={pick}
       />
     </motion.div>
+  );
+}
+
+/** Una casella de la fitxa d'historial de mòbil: etiqueta petita a sobre, valor a sota. */
+function HistoryCell({ label, children }: { label: string; children: React.ReactNode }) {
+  return (
+    <div>
+      <dt className="text-xs text-ink-400">{label}</dt>
+      <dd className="mt-0.5 tabular-nums text-ink-700">{children}</dd>
+    </div>
   );
 }
 

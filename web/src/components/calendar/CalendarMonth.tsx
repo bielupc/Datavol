@@ -33,7 +33,7 @@ export function CalendarMonth({
   return (
     <div>
       <div className="mb-5 flex items-center justify-between gap-4">
-        <h3 className="text-xl font-semibold tracking-title text-ink-900">
+        <h3 className="min-w-0 truncate text-lg font-semibold tracking-title text-ink-900 sm:text-xl">
           {ca.sessions.months[month]} {year}
         </h3>
         <div className="flex gap-1">
@@ -123,7 +123,8 @@ function NavButton({
       type="button"
       onClick={onClick}
       aria-label={label}
-      className="pressable grid h-10 w-10 place-items-center rounded-xl border border-line
+      // 44 px: la mida mínima raonable per a un objectiu tàctil.
+      className="pressable grid h-11 w-11 place-items-center rounded-xl border border-line
                  bg-surface text-xl text-ink-700 transition-colors duration-150 hover:bg-paper"
     >
       {children}

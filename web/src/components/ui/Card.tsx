@@ -12,7 +12,12 @@ interface CardProps {
 export function Card({ children, className = '', animated = true }: CardProps) {
   const Component = animated ? motion.div : 'div';
   return (
-    <Component {...(animated ? { variants: riseIn } : {})} className={`card p-7 ${className}`}>
+    // Menys coixí a mòbil: a 320 px, 28 px per banda se n'emportaven una
+    // sisena part de l'amplada útil de cada targeta.
+    <Component
+      {...(animated ? { variants: riseIn } : {})}
+      className={`card p-5 sm:p-7 ${className}`}
+    >
       {children}
     </Component>
   );

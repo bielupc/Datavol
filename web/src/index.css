@@ -8,6 +8,15 @@
     --accent: #be185d;
     /* Versió molt diluïda del mateix to, per a fons i farcits de gràfic. */
     --accent-soft: rgb(190 24 93 / 0.1);
+
+    /* Alçada de la barra de navegació inferior (només a mòbil). La necessiten
+       tant la barra com el `padding-bottom` del contingut, que ha de deixar-la
+       lliure perquè l'última targeta no hi quedi mig amagada a sota. */
+    --tabbar-h: 4.5rem;
+    /* Radi del "mos" que la barra fa al voltant del botó central. El botó fa
+       3.5rem de diàmetre (radi 1.75rem); la diferència és l'aire que queda
+       entre el botó i la vora de la barra. */
+    --tabbar-notch-r: 2.125rem;
   }
 
   html {
@@ -26,13 +35,13 @@
        tingui en compte per al document arrel. */
     overflow-y: auto;
     scrollbar-gutter: stable;
-    /* La píndola de la capçalera és un flex-item que, per defecte, no
-       s'encongeix per sota de l'amplada mínima del seu contingut (nav +
-       selector de perfil). En mòbils estrets això la feia sobresortir del
-       viewport i afegia scroll horitzontal a tota la pàgina — es notava
-       sobretot quan alguna animació (subratllat, píndola de perfil) hi
-       coincidia. Es talla aquí, a l'arrel, perquè cap component pugui
-       tornar a obrir aquest forat. */
+    /* Xarxa de seguretat: cap pàgina no hauria de desbordar horitzontalment
+       (totes s'han revisat fins a 320 px d'amplada), però si algun dia una
+       torna a fer-ho, val més que es retalli aquí que no pas que tota
+       l'aplicació es pugui arrossegar de costat sota el dit.
+       Nota per a qui hi treballi: mentre es prova el disseny en mòbil convé
+       desactivar aquesta línia temporalment, perquè si no un desbordament
+       real queda amagat en comptes de veure's. */
     overflow-x: hidden;
   }
 
@@ -134,17 +143,60 @@
     );
   }
 
+  /*
+   * Barra de navegació inferior (mòbil). Segueix la mateixa idea que `.island`:
+   * la silueta no és un rectangle arrodonit, sinó una càpsula amb un mos
+   * circular a dalt al mig per on treu el cap el botó central.
+   *
+   * El mos es fa amb `mask-image` i no amb pseudoelements de color, perquè
+   * així el forat és transparent de debò i s'hi veu el contingut de la pàgina
+   * passant per sota — un pseudoelement blanc quedaria com un pegat visible.
+   *
+   * Conseqüència: la màscara també retallaria qualsevol `box-shadow` i
+   * qualsevol `border`. Per això l'ombra viu al contenidor pare
+   * (`.tabbar-shadow`, amb `filter: drop-shadow`, que sí que segueix el canal
+   * alfa ja retallat) i la barra no porta vora. El botó central, per la
+   * mateixa raó, no pot ser fill de `.tabbar`: hi quedaria dins del forat i
+   * desapareixeria. Es dibuixa com a germà, posicionat a sobre.
+   */
+  .tabbar-shadow {
+    filter: drop-shadow(0 6px 20px rgb(16 24 40 / 0.14)) drop-shadow(0 1px 3px rgb(16 24 40 / 0.08));
+  }
+
+  .tabbar {
+    @apply rounded-[1.75rem] bg-surface;
+    /* El mig píxel de marge entre les dues parades suavitza la vora del forat:
+       amb un tall net al 100 % s'hi veurien els esglaons del cercle. */
+    -webkit-mask-image: radial-gradient(
+      circle var(--tabbar-notch-r) at 50% 0,
+      transparent calc(100% - 0.5px),
+      #000 100%
+    );
+    mask-image: radial-gradient(
+      circle var(--tabbar-notch-r) at 50% 0,
+      transparent calc(100% - 0.5px),
+      #000 100%
+    );
+  }
+
   .chip {
     @apply inline-flex items-center gap-1.5 rounded-full border border-line bg-paper
            px-3 py-1.5 text-sm font-medium text-ink-600;
   }
 
-  /* Resposta en prémer: qualsevol cosa clicable ha de respondre al dit. */
+  /* Resposta en prémer: qualsevol cosa clicable ha de respondre al dit.
+   *
+   * Es fa amb la propietat `scale` i NO amb `transform: scale(…)`. Amb
+   * `transform`, la regla `:active` (dues classes de especificitat) guanyava a
+   * qualsevol utilitat de translació de Tailwind sobre el mateix element
+   * (`-translate-x-1/2`, `-translate-y-1/2`) i li esborrava la posició: en
+   * prémer, l'element saltava. `scale` és una propietat independent que es
+   * compon amb `transform` en comptes de substituir-lo. */
   .pressable {
-    @apply transition-transform duration-150 ease-out;
+    @apply transition-[scale] duration-150 ease-out;
   }
   .pressable:active {
-    transform: scale(0.97);
+    scale: 0.97;
   }
 
   /* El moviment en passar-hi per sobre només té sentit amb ratolí:

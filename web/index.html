@@ -2,8 +2,13 @@
 <html lang="ca">
   <head>
     <meta charset="UTF-8" />
-    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-    <meta name="theme-color" content="#000000" />
+    <!-- `viewport-fit=cover` és imprescindible perquè `env(safe-area-inset-*)`
+         retorni valors reals a iOS: sense això la barra inferior quedaria sota
+         la barreta d'inici. -->
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, viewport-fit=cover" />
+    <!-- El color del fons de la pàgina (paper): a mòbil ja no hi ha capçalera
+         de color, així que el negre no lligava amb res. -->
+    <meta name="theme-color" content="#f6f7f9" />
     <link
       rel="icon"
       type="image/svg+xml"

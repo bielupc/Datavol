@@ -112,7 +112,7 @@ export function Importar() {
                 if (dropped) handleFile(dropped);
               }}
               className={`flex cursor-pointer flex-col items-center justify-center gap-2 rounded-2xl
-                          border-2 border-dashed px-6 py-14 text-center
+                          border-2 border-dashed px-4 py-10 text-center sm:px-6 sm:py-14
                           transition-[border-color,background-color] duration-200 ease-out ${
                             dragging ? 'bg-paper' : 'border-line hover:bg-paper'
                           }`}
@@ -184,7 +184,7 @@ export function Importar() {
                 animate={{ opacity: 1, transform: 'translateY(0px)' }}
                 exit={{ opacity: 0 }}
                 transition={{ duration: 0.2, ease: EASE_OUT }}
-                className="mt-6 rounded-2xl border border-line bg-paper p-5"
+                className="mt-6 rounded-2xl border border-line bg-paper p-4 sm:p-5"
               >
                 {/* Només quan aporta informació nova al missatge principal: si no
                     hi ha res de nou, "ja s'havia importat" i "no hi ha res de nou"
@@ -196,7 +196,7 @@ export function Importar() {
                 )}
 
                 {/* Missatge principal: un de sol, sense competència visual */}
-                <p className="text-2xl font-semibold tracking-title text-ink-900">
+                <p className="text-xl font-semibold tracking-title text-ink-900 sm:text-2xl">
                   {preview.newEntries === 0 ? ca.import.nothingNew : ca.import.willAdd(preview.newEntries)}
                 </p>
 
@@ -291,15 +291,18 @@ export function Importar() {
                   </details>
                 )}
 
-                <div className="mt-5 flex flex-wrap justify-end gap-2">
+                {/* A mòbil, botons a tot l'ample i apilats. `col-reverse`
+                    perquè el botó principal (que al DOM va l'últim, com toca a
+                    l'escriptori) quedi a dalt, sota el dit. */}
+                <div className="mt-5 flex flex-col-reverse gap-2 sm:flex-row sm:flex-wrap sm:justify-end">
                   {preview.newEntries > 0 ? (
                     <>
                       <button
                         type="button"
                         onClick={reset}
-                        className="pressable flex items-center gap-1.5 rounded-xl border border-line
-                                   bg-surface px-4 py-2.5 text-ink-700 transition-colors duration-150
-                                   hover:bg-paper"
+                        className="pressable flex w-full items-center justify-center gap-1.5 rounded-xl
+                                   border border-line bg-surface px-4 py-2.5 text-ink-700
+                                   transition-colors duration-150 hover:bg-paper sm:w-auto"
                       >
                         <IconClose width={18} height={18} />
                         {ca.import.cancel}
@@ -307,8 +310,8 @@ export function Importar() {
                       <button
                         type="button"
                         onClick={confirm}
-                        className="pressable flex items-center gap-1.5 rounded-xl px-4 py-2.5
-                                   font-semibold text-white"
+                        className="pressable flex w-full items-center justify-center gap-1.5 rounded-xl
+                                   px-4 py-2.5 font-semibold text-white sm:w-auto"
                         style={{ background: 'var(--accent)' }}
                       >
                         <IconCheck width={18} height={18} />
@@ -321,9 +324,9 @@ export function Importar() {
                     <button
                       type="button"
                       onClick={reset}
-                      className="pressable flex items-center gap-1.5 rounded-xl border border-line
-                                 bg-surface px-4 py-2.5 text-ink-700 transition-colors duration-150
-                                 hover:bg-paper"
+                      className="pressable flex w-full items-center justify-center gap-1.5 rounded-xl
+                                 border border-line bg-surface px-4 py-2.5 text-ink-700
+                                 transition-colors duration-150 hover:bg-paper sm:w-auto"
                     >
                       <IconClose width={18} height={18} />
                       {ca.import.close}
@@ -361,8 +364,8 @@ export function Importar() {
           ) : (
             <ul className="divide-y divide-lineSoft">
               {(history.data ?? []).map((imp) => (
-                <li key={imp.id} className="flex flex-wrap items-center gap-3 py-2.5">
-                  <div className="min-w-0 flex-1">
+                <li key={imp.id} className="flex flex-wrap items-center gap-x-3 gap-y-2 py-2.5">
+                  <div className="min-w-[12rem] flex-1">
                     <p className="truncate text-sm text-ink-700">{imp.filename}</p>
                     <p className="text-xs text-ink-500">
                       {imp.importedAt} · {ca.import.entriesCount(imp.entries)} ·{' '}
@@ -372,9 +375,9 @@ export function Importar() {
                   <button
                     type="button"
                     onClick={() => confirmUndo(imp.id, imp.filename)}
-                    className="pressable flex items-center gap-1.5 rounded-lg border border-line px-3 py-1.5
-                               text-xs text-ink-500 transition-colors duration-150
-                               hover:border-rose-300 hover:text-down"
+                    className="pressable flex shrink-0 items-center gap-1.5 rounded-lg border border-line
+                               px-3 py-2 text-xs text-ink-500 transition-colors duration-150
+                               hover:border-rose-300 hover:text-down sm:py-1.5"
                   >
                     <IconTrash width={14} height={14} />
                     {ca.import.undo}

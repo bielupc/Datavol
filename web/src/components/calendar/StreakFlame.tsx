@@ -10,7 +10,10 @@ export function StreakFlame({ weeks }: { weeks: number }) {
   const active = weeks > 0;
 
   return (
-    <div className="flex shrink-0 items-center gap-2 whitespace-nowrap rounded-full border border-line bg-paper px-3 py-1.5">
+    // `max-w-full`: dins d'un `SectionTitle` que embolica, en pantalles
+    // estretes la insígnia baixa sota el títol i no ha de sobresortir de la
+    // targeta encara que el text de la ratxa sigui llarg.
+    <div className="flex max-w-full shrink-0 items-center gap-2 whitespace-nowrap rounded-full border border-line bg-paper px-3 py-1.5">
       <FlameIcon size={18} muted={!active} />
       <span className="text-sm font-medium text-ink-700">{ca.sessions.streak(weeks)}</span>
     </div>

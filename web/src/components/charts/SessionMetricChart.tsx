@@ -12,6 +12,7 @@ import {
 import { ca } from '../../i18n/ca';
 import { fmt } from '../../lib/format';
 import { metricCrossfade } from '../../lib/motion';
+import { useIsDesktop } from '../../lib/useMediaQuery';
 import { ChartTooltip } from './ChartTooltip';
 import { EmptyChart } from './LineTrendChart';
 import { useChartReveal } from './useChartReveal';
@@ -48,7 +49,7 @@ function axisFormat(metric: SessionMetric, value: number): string {
 export function SessionMetricChart({
   data,
   metric,
-  height = 300,
+  height,
 }: {
   data: SessionPoint[];
   metric: SessionMetric;
@@ -57,11 +58,17 @@ export function SessionMetricChart({
   const { ref, revealed, duration } = useChartReveal();
   const firstMetric = useRef(metric);
   const isFirstMetric = firstMetric.current === metric;
+  // Recharts vol mides en números, no en classes: la mida ha de venir de JS.
+  // A mòbil el gràfic s'abaixa (una pantalla de telèfon no en té per a 300 px)
+  // i l'eix vertical s'estreny — 72 px de marca es menjaven una cinquena part
+  // de l'amplada útil.
+  const isDesktop = useIsDesktop();
+  const chartHeight = height ?? (isDesktop ? 300 : 220);
 
-  if (data.length === 0) return <EmptyChart height={height} />;
+  if (data.length === 0) return <EmptyChart height={chartHeight} />;
 
   return (
-    <div ref={ref} style={{ height }}>
+    <div ref={ref} style={{ height: chartHeight }}>
       <AnimatePresence mode="wait">
         {revealed && (
           <motion.div key={metric} {...metricCrossfade} style={{ height: '100%' }}>
@@ -77,17 +84,17 @@ export function SessionMetricChart({
                 <XAxis
                   dataKey="date"
                   tickFormatter={fmt.dateShort}
-                  tick={{ fill: '#6b7280', fontSize: 13 }}
+                  tick={{ fill: '#6b7280', fontSize: isDesktop ? 13 : 11 }}
                   axisLine={false}
                   tickLine={false}
-                  minTickGap={20}
+                  minTickGap={isDesktop ? 20 : 28}
                 />
                 <YAxis
                   tickFormatter={(v) => axisFormat(metric, v)}
-                  tick={{ fill: '#6b7280', fontSize: 13 }}
+                  tick={{ fill: '#6b7280', fontSize: isDesktop ? 13 : 11 }}
                   axisLine={false}
                   tickLine={false}
-                  width={72}
+                  width={isDesktop ? 72 : 44}
                 />
                 <Tooltip
                   cursor={{ stroke: '#d1d5db', strokeWidth: 1 }}

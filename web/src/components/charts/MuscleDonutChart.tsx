@@ -4,6 +4,7 @@ import { Cell, Pie, PieChart, ResponsiveContainer, Tooltip } from 'recharts';
 import { ca, translateGroup } from '../../i18n/ca';
 import { fmt } from '../../lib/format';
 import { metricCrossfade } from '../../lib/motion';
+import { useIsDesktop } from '../../lib/useMediaQuery';
 import { useChartReveal } from './useChartReveal';
 
 export type MuscleMetric = 'tutSeconds' | 'volume' | 'reps';
@@ -42,7 +43,7 @@ function formatValue(metric: MuscleMetric, value: number): string {
 export function MuscleDonutChart({
   data,
   metric,
-  height = 300,
+  height,
 }: {
   data: MuscleSlice[];
   metric: MuscleMetric;
@@ -50,6 +51,8 @@ export function MuscleDonutChart({
 }) {
   const { ref, revealed, duration } = useChartReveal();
   const [activeGroup, setActiveGroup] = useState<string | null>(null);
+  const isDesktop = useIsDesktop();
+  const chartHeight = height ?? (isDesktop ? 300 : 240);
 
   const slices = data
     .map((d) => ({ ...d, value: d[metric] }))
@@ -66,7 +69,7 @@ export function MuscleDonutChart({
       <div
         className="flex items-center justify-center rounded-xl border border-dashed border-line
                    text-ink-500"
-        style={{ height }}
+        style={{ height: chartHeight }}
       >
         {ca.chart.noData}
       </div>
@@ -75,7 +78,7 @@ export function MuscleDonutChart({
 
   return (
     <div ref={ref}>
-      <div className="relative" style={{ height }}>
+      <div className="relative" style={{ height: chartHeight }}>
         {revealed && (
           <>
             <ResponsiveContainer width="100%" height="100%">
@@ -148,13 +151,16 @@ export function MuscleDonutChart({
                 className="h-3 w-3 shrink-0 rounded-full"
                 style={{ background: PALETTE[i % PALETTE.length] }}
               />
-              <span className="flex-1 truncate text-sm text-ink-700">
+              <span className="min-w-0 flex-1 truncate text-sm text-ink-700">
                 {translateGroup(slice.group)}
               </span>
-              <span className="text-sm tabular-nums text-ink-500">
+              {/* El percentatge cau a mòbil: amb quatre columnes, el nom del
+                  grup es quedava sense amplada i es tallava sempre. El valor
+                  absolut és el que costa més de deduir, així que es queda. */}
+              <span className="hidden shrink-0 text-sm tabular-nums text-ink-500 sm:inline">
                 {fmt.decimal((slice.value / total) * 100)} %
               </span>
-              <span className="w-24 shrink-0 text-right text-sm font-medium tabular-nums text-ink-900">
+              <span className="w-20 shrink-0 text-right text-sm font-medium tabular-nums text-ink-900 sm:w-24">
                 {formatValue(metric, slice.value)}
               </span>
             </button>

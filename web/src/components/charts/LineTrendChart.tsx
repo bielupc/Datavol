@@ -10,6 +10,7 @@ import {
 } from 'recharts';
 import { ca } from '../../i18n/ca';
 import { fmt } from '../../lib/format';
+import { useIsDesktop } from '../../lib/useMediaQuery';
 import { ChartTooltip } from './ChartTooltip';
 import { useChartReveal } from './useChartReveal';
 
@@ -35,14 +36,18 @@ export function LineTrendChart({
   data,
   format,
   label,
-  height = 260,
+  height,
   color = 'var(--accent)',
   tooltipRows,
 }: Props) {
   const { ref, revealed, duration } = useChartReveal();
   const gradientId = `grad-${label.replace(/\W/g, '')}`;
+  // A la fitxa d'un exercici n'hi ha quatre, un sota l'altre: a 260 px cadascun
+  // eren més de 1.000 px de gràfics seguits en un telèfon.
+  const isDesktop = useIsDesktop();
+  const chartHeight = height ?? (isDesktop ? 260 : 200);
 
-  if (data.length === 0) return <EmptyChart height={height} />;
+  if (data.length === 0) return <EmptyChart height={chartHeight} />;
 
   // Marge del 12 % perquè la línia no toqui les vores.
   const values = data.map((d) => d.value);
@@ -51,7 +56,7 @@ export function LineTrendChart({
   const pad = Math.max((max - min) * 0.12, max * 0.03, 0.5);
 
   return (
-    <div ref={ref} style={{ height }}>
+    <div ref={ref} style={{ height: chartHeight }}>
       {revealed && (
         <ResponsiveContainer width="100%" height="100%">
           <ComposedChart data={data} margin={{ top: 8, right: 8, bottom: 0, left: -8 }}>
@@ -65,18 +70,18 @@ export function LineTrendChart({
             <XAxis
               dataKey="date"
               tickFormatter={fmt.dateShort}
-              tick={{ fill: '#6b7280', fontSize: 13 }}
+              tick={{ fill: '#6b7280', fontSize: isDesktop ? 13 : 11 }}
               axisLine={false}
               tickLine={false}
-              minTickGap={20}
+              minTickGap={isDesktop ? 20 : 28}
             />
             <YAxis
               domain={[min - pad, max + pad]}
               tickFormatter={format}
-              tick={{ fill: '#6b7280', fontSize: 13 }}
+              tick={{ fill: '#6b7280', fontSize: isDesktop ? 13 : 11 }}
               axisLine={false}
               tickLine={false}
-              width={64}
+              width={isDesktop ? 64 : 42}
             />
             <Tooltip
               cursor={{ stroke: '#d1d5db', strokeWidth: 1 }}

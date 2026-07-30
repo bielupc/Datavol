@@ -74,7 +74,16 @@ export function Exercicis() {
         <p className="text-sm text-ink-500">{ca.exercises.count(filtered.length)}</p>
       </div>
 
-      <div className="flex flex-wrap gap-2">
+      {/* A mòbil, una tira que es desplaça de costat en comptes d'un bloc que
+          embolica: amb vuit grups musculars, els filtres ocupaven quatre línies
+          i empenyien la llista fora de la pantalla abans de veure'n res.
+          Els marges negatius fan que la tira arribi fins a la vora del
+          viewport, així es veu que hi ha més coses a la dreta. */}
+      <div
+        className="-mx-5 flex gap-2 overflow-x-auto px-5 pb-1
+                   [scrollbar-width:none] [&::-webkit-scrollbar]:hidden
+                   sm:mx-0 sm:flex-wrap sm:px-0"
+      >
         <FilterChip active={group === null} onClick={() => setGroup(null)}>
           {ca.exercises.filterAll}
         </FilterChip>
@@ -98,16 +107,16 @@ export function Exercicis() {
             <motion.div key={ex.slug} variants={riseIn}>
               <Link
                 to={`/exercicis/${ex.slug}`}
-                className="card hover-lift flex h-full flex-col gap-4 p-5"
+                className="card hover-lift flex h-full flex-col gap-4 p-4 sm:p-5"
               >
-                <div className="flex items-start gap-4">
+                <div className="flex items-start gap-3 sm:gap-4">
                   <ExerciseMedia
                     image={ex.image}
                     gif={ex.gif}
                     alt={ex.name}
                     playOnHover
                     fallback={ca.exercises.noMedia}
-                    className="h-20 w-20 shrink-0 rounded-xl bg-paper p-1"
+                    className="h-16 w-16 shrink-0 rounded-xl bg-paper p-1 sm:h-20 sm:w-20"
                   />
                   <div className="min-w-0 flex-1">
                     <h3 className="truncate font-semibold tracking-title text-ink-900">
@@ -119,7 +128,7 @@ export function Exercicis() {
                 </div>
 
                 <div className="mt-auto flex items-end justify-between gap-3">
-                  <div>
+                  <div className="min-w-0">
                     <p className="text-sm text-ink-500">{ca.exercises.current}</p>
                     <p className="text-2xl font-semibold tracking-title tabular-nums text-ink-900">
                       {fmt.weight(ex.lastWeight, ex.unit)}
@@ -136,7 +145,9 @@ export function Exercicis() {
                       {fmt.percent(ex.progressPct)}
                     </p>
                   </div>
-                  <Sparkline values={ex.sparkline} />
+                  <span className="shrink-0">
+                    <Sparkline values={ex.sparkline} />
+                  </span>
                 </div>
               </Link>
             </motion.div>
@@ -160,8 +171,8 @@ function FilterChip({
     <button
       type="button"
       onClick={onClick}
-      className={`pressable rounded-full border px-4 py-2 text-sm font-medium
-                  transition-colors duration-150 ${
+      className={`pressable shrink-0 whitespace-nowrap rounded-full border px-4 py-2
+                  text-sm font-medium transition-colors duration-150 ${
                     active
                       ? 'border-transparent text-white'
                       : 'border-line bg-surface text-ink-600 hover:bg-paper'

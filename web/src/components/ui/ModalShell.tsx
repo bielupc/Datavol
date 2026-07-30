@@ -8,6 +8,12 @@ interface Props {
   children: React.ReactNode;
   /** Amplada màxima de la targeta (classe de Tailwind). */
   maxWidthClass?: string;
+  /**
+   * Alçada de la targeta (classe de Tailwind). Per defecte és fixa — vegeu el
+   * punt 4 de sota. Els fulls curts (com el de perfils) hi passen `h-auto`:
+   * amb quatre files, mitja pantalla buida no aportaria res.
+   */
+  heightClass?: string;
 }
 
 /**
@@ -26,9 +32,21 @@ interface Props {
  *    (per exemple arrossegant més enllà d'un camp de cerca) genera un `click` amb el fons com a
  *    diana — i el tancava sense voler-ho.
  * 4. **Mida fixa**: la targeta té una alçada constant, no depèn de si el contingut n'omple poc o
- *    molt — evita el salt de mida en obrir diàlegs amb continguts de llargada molt diferent.
+ *    molt — evita el salt de mida en obrir diàlegs amb continguts de llargada molt diferent. El
+ *    `min(…, 85dvh)` només hi posa un sostre: en un mòbil baix, 34rem no hi cabrien i els botons
+ *    de sota quedarien fora de la pantalla.
+ *
+ * A mòbil el diàleg és un full ancorat a baix (`items-end`), amb les cantonades de sota rectes —
+ * toquen la vora de la pantalla — i amb el marge de l'àrea segura perquè el contingut no quedi
+ * sota la barreta d'inici d'iOS.
  */
-export function ModalShell({ open, onClose, children, maxWidthClass = 'max-w-2xl' }: Props) {
+export function ModalShell({
+  open,
+  onClose,
+  children,
+  maxWidthClass = 'max-w-2xl',
+  heightClass = 'h-[min(34rem,85dvh)]',
+}: Props) {
   const mouseDownOnBackdrop = useRef(false);
 
   useEffect(() => {
@@ -65,7 +83,9 @@ export function ModalShell({ open, onClose, children, maxWidthClass = 'max-w-2xl
           }}
         >
           <motion.div
-            className={`card flex h-[34rem] w-full ${maxWidthClass} flex-col overflow-hidden p-0 shadow-pop`}
+            className={`card flex ${heightClass} max-h-[85dvh] w-full ${maxWidthClass} flex-col
+                        overflow-hidden rounded-b-none p-0 pb-[env(safe-area-inset-bottom)]
+                        shadow-pop sm:rounded-b-2xl sm:pb-0`}
             // Diàleg: es queda centrat, no s'ancora a cap disparador.
             initial={{ opacity: 0, transform: 'translateY(16px) scale(0.97)' }}
             animate={{ opacity: 1, transform: 'translateY(0px) scale(1)' }}
