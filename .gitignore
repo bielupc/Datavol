@@ -1,0 +1,7 @@
+node_modules/
+dist/
+.env
+*.log
+
+# El dataset d'exercicis es descarrega amb scripts/fetch-dataset.sh (~295 MB)
+data/exercises-dataset/

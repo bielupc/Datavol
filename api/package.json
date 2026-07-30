@@ -1,0 +1,24 @@
+{
+  "name": "gym-api",
+  "version": "1.0.0",
+  "private": true,
+  "type": "module",
+  "scripts": {
+    "dev": "tsx watch src/index.ts",
+    "build": "tsc -p tsconfig.json && cp -r src/migrations dist/migrations",
+    "start": "node dist/index.js",
+    "parser:check": "tsx src/parser/check.ts"
+  },
+  "dependencies": {
+    "@fastify/multipart": "^8.3.0",
+    "fastify": "^4.28.1",
+    "pdfjs-dist": "^4.0.379",
+    "pg": "^8.12.0"
+  },
+  "devDependencies": {
+    "@types/node": "^20.14.10",
+    "@types/pg": "^8.11.6",
+    "tsx": "^4.16.2",
+    "typescript": "^5.5.3"
+  }
+}

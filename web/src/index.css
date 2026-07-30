@@ -1,0 +1,176 @@
+@tailwind base;
+@tailwind components;
+@tailwind utilities;
+
+@layer base {
+  :root {
+    /* El canvia el selector de perfil perquè tota la interfície s'hi adapti. */
+    --accent: #be185d;
+    /* Versió molt diluïda del mateix to, per a fons i farcits de gràfic. */
+    --accent-soft: rgb(190 24 93 / 0.1);
+  }
+
+  html {
+    /* Mides en rem: si l'usuari apuja la lletra del navegador, tot creix amb ella. */
+    font-size: 100%;
+    scroll-behavior: smooth;
+    -webkit-text-size-adjust: 100%;
+    /* Reserva sempre l'espai de la barra de desplaçament vertical, encara
+       que la pàgina no tingui prou contingut per necessitar-la. Sense això,
+       canviar entre una pestanya llarga (amb barra) i una de curta (sense)
+       feia variar l'amplada disponible i tota la capçalera fixa i centrada
+       feia un petit salt lateral — es notava com un tremolor en canviar de
+       pestanya. */
+    /* `scrollbar-gutter` no fa res sobre `overflow: visible` (el valor per
+       defecte) — cal fixar explícitament `auto` perquè el navegador el
+       tingui en compte per al document arrel. */
+    overflow-y: auto;
+    scrollbar-gutter: stable;
+    /* La píndola de la capçalera és un flex-item que, per defecte, no
+       s'encongeix per sota de l'amplada mínima del seu contingut (nav +
+       selector de perfil). En mòbils estrets això la feia sobresortir del
+       viewport i afegia scroll horitzontal a tota la pàgina — es notava
+       sobretot quan alguna animació (subratllat, píndola de perfil) hi
+       coincidia. Es talla aquí, a l'arrel, perquè cap component pugui
+       tornar a obrir aquest forat. */
+    overflow-x: hidden;
+  }
+
+  body {
+    @apply bg-paper text-ink-900 antialiased;
+    font-family: Inter, system-ui, -apple-system, 'Segoe UI', Roboto, sans-serif;
+    overflow-x: hidden;
+  }
+
+  /* El tracking és específic de la mida: com més gran, més tancat. */
+  h1 {
+    @apply tracking-display;
+  }
+  h2,
+  h3 {
+    @apply tracking-title;
+  }
+
+  /* Focus visible i coherent a tot arreu, imprescindible amb teclat. */
+  :focus-visible {
+    outline: 2px solid var(--accent);
+    outline-offset: 2px;
+    border-radius: 6px;
+  }
+
+  /*
+   * Menys moviment no vol dir cap transició: les de color i opacitat ajuden a
+   * entendre què passa. El que es treu és el desplaçament.
+   */
+  @media (prefers-reduced-motion: reduce) {
+    *,
+    *::before,
+    *::after {
+      animation-duration: 0.01ms !important;
+      animation-iteration-count: 1 !important;
+      transition-property: opacity, color, background-color, border-color, fill, stroke !important;
+      transition-duration: 150ms !important;
+      scroll-behavior: auto !important;
+    }
+  }
+}
+
+@layer components {
+  .card {
+    @apply rounded-2xl border border-line bg-surface shadow-card;
+  }
+
+  /*
+   * Barra "illa": no és un simple rectangle arrodonit. La càpsula central té
+   * les cantonades de dalt rectes (toca la vora del viewport) i només les de
+   * baix arrodonides; als costats hi ha dos connectors — quadrats de costat
+   * `--island-r` amb un `radial-gradient` centrat a la cantonada oposada a la
+   * pastilla — que dibuixen la corba còncava inversa que fon la vora recta
+   * de dalt amb la vora vertical de la pastilla, sense cap salt. El
+   * `filter: drop-shadow` (no `box-shadow`) es posa al contenidor pare
+   * perquè segueix el canal alfa real de tota la silueta ja composta —
+   * pastilla + connectors —, no la capsa rectangular de cada element.
+   */
+  .island-shadow {
+    filter: drop-shadow(0 10px 20px rgb(16 24 40 / 0.16));
+  }
+
+  .island {
+    --island-r: 1.25rem;
+    position: relative;
+    border-radius: 0 0 var(--island-r) var(--island-r);
+    background: var(--accent);
+    /* Color suau en canviar de perfil (l'accent canvia a l'instant per JS). */
+    transition: background-color 200ms ease-out;
+  }
+
+  .island::before,
+  .island::after {
+    content: '';
+    position: absolute;
+    top: 0;
+    width: var(--island-r);
+    height: var(--island-r);
+  }
+
+  /* El color del connector ha de seguir `--accent` (canvia amb el perfil
+     actiu), no un blanc fix — altrament es veuria una vora on la pastilla
+     (ara de color) es troba amb el connector. */
+  .island::before {
+    left: calc(var(--island-r) * -1);
+    background: radial-gradient(
+      circle at bottom left,
+      transparent var(--island-r),
+      var(--accent) var(--island-r)
+    );
+  }
+
+  .island::after {
+    right: calc(var(--island-r) * -1);
+    background: radial-gradient(
+      circle at bottom right,
+      transparent var(--island-r),
+      var(--accent) var(--island-r)
+    );
+  }
+
+  .chip {
+    @apply inline-flex items-center gap-1.5 rounded-full border border-line bg-paper
+           px-3 py-1.5 text-sm font-medium text-ink-600;
+  }
+
+  /* Resposta en prémer: qualsevol cosa clicable ha de respondre al dit. */
+  .pressable {
+    @apply transition-transform duration-150 ease-out;
+  }
+  .pressable:active {
+    transform: scale(0.97);
+  }
+
+  /* El moviment en passar-hi per sobre només té sentit amb ratolí:
+     en tàctil el :hover es dispara en tocar i es queda enganxat. */
+  @media (hover: hover) and (pointer: fine) {
+    .hover-lift {
+      @apply transition-[transform,box-shadow,border-color] duration-200 ease-out;
+    }
+    .hover-lift:hover {
+      transform: translateY(-2px);
+      @apply border-ink-400/40 shadow-lift;
+    }
+  }
+}
+
+/* Barres de desplaçament discretes */
+::-webkit-scrollbar {
+  width: 12px;
+  height: 12px;
+}
+::-webkit-scrollbar-thumb {
+  @apply rounded-full border-4 border-solid border-transparent bg-ink-400/40 bg-clip-padding;
+}
+::-webkit-scrollbar-thumb:hover {
+  @apply bg-ink-500/50;
+}
+::-webkit-scrollbar-track {
+  background: transparent;
+}
