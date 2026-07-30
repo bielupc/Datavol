@@ -2,6 +2,7 @@ import multipart from '@fastify/multipart';
 import Fastify from 'fastify';
 import { migrate, waitForDb } from './db.js';
 import { loadDataset } from './dataset/loader.js';
+import { rematchUnassigned } from './importer.js';
 import { registerRoutes } from './routes.js';
 import { seed } from './seed.js';
 
@@ -20,6 +21,8 @@ await waitForDb();
 await migrate();
 loadDataset();
 await seed();
+// Després de la llavor: recupera els exercicis que es van crear sense catàleg.
+await rematchUnassigned();
 
 const port = parseInt(process.env.PORT ?? '3001', 10);
 await app.listen({ port, host: '0.0.0.0' });

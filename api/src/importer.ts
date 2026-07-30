@@ -11,6 +11,7 @@ import { createHash } from 'node:crypto';
 import type { PoolClient } from 'pg';
 import { query, transaction } from './db.js';
 import { matchExercise } from './dataset/match.js';
+import { loadDataset } from './dataset/loader.js';
 import { slugify } from './parser/normalize.js';
 import { parseWorkoutPdf, type ParsedWorkout } from './parser/pdfParser.js';
 
@@ -144,6 +145,50 @@ async function upsertExercise(
     ],
   );
   return res.rows[0].id;
+}
+
+/**
+ * Reintenta l'aparellament amb el catàleg dels exercicis que no en tenen.
+ *
+ * `upsertExercise` només crida el matcher quan crea la fila, així que si la primera
+ * importació s'executa amb el dataset absent (per exemple un `docker compose up` abans
+ * de `scripts/fetch-dataset.sh`), els exercicis queden sense GIF per sempre: el volum
+ * de la base de dades sobreviu i les importacions són idempotents, de manera que cap
+ * arrencada posterior els torna a mirar.
+ *
+ * `dataset_match` distingeix "encara no s'ha mirat" (NULL) de "mirat i sense
+ * equivalent" ('cap'), de manera que això és idempotent i no toca mai el que
+ * l'usuari hagi desassignat a mà.
+ */
+export async function rematchUnassigned(): Promise<number> {
+  // Sense catàleg no es pot aparellar res, i marcar-ho tot com a 'cap' repetiria
+  // exactament el problema que això vol resoldre.
+  if (loadDataset().length === 0) {
+    console.warn('[catàleg] Dataset buit: es deixa l’aparellament per a la pròxima arrencada.');
+    return 0;
+  }
+
+  const pending = await query<{ id: number; name: string }>(
+    'SELECT id, name FROM exercises WHERE dataset_id IS NULL AND dataset_match IS NULL',
+  );
+  if (pending.length === 0) return 0;
+
+  let matched = 0;
+  for (const ex of pending) {
+    const match = matchExercise(ex.name);
+    if (match) matched++;
+    await query(
+      'UPDATE exercises SET dataset_id = $2, dataset_match = $3, muscle_group = $4 WHERE id = $1',
+      [
+        ex.id,
+        match?.exercise.id ?? null,
+        match?.kind ?? 'cap',
+        match?.exercise.bodyPart ?? null,
+      ],
+    );
+  }
+  console.log(`[catàleg] ${matched}/${pending.length} exercicis pendents aparellats.`);
+  return matched;
 }
 
 export interface ImportResult {

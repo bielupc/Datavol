@@ -334,7 +334,9 @@ export async function registerRoutes(app: FastifyInstance): Promise<void> {
       const rows = await query(
         `UPDATE exercises
             SET dataset_id = $2,
-                dataset_match = CASE WHEN $2::text IS NULL THEN NULL ELSE 'manual' END,
+                -- 'cap' i no NULL: treure l'assignació és una decisió de l'usuari,
+                -- i rematchUnassigned() no ha de tornar-la a assignar a l'arrencada.
+                dataset_match = CASE WHEN $2::text IS NULL THEN 'cap' ELSE 'manual' END,
                 muscle_group = $3
           WHERE slug = $1
       RETURNING slug`,
